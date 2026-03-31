@@ -1,0 +1,19 @@
+Senior Python Developer Needed
+
+We are looking for a Senior Python Developer with 3-5 years experience.
+
+Required Skills:
+- Python programming
+- Django or Flask framework
+- REST API development
+- SQL and database management
+- Git version control
+
+Good to have:
+- AWS cloud services
+- Docker
+- Leadership experience
+
+Education:
+- Bachelor's degree in Computer Science
+- Master's degree is a plus

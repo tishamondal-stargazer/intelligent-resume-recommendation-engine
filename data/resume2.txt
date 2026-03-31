@@ -1,0 +1,34 @@
+JANE DOE
+Email: jane.doe@email.com | Phone: (987) 654-3210
+
+SUMMARY
+Java Developer with 4 years of experience transitioning to Python.
+Strong foundation in object-oriented programming and database management.
+
+TECHNICAL SKILLS
+- Languages: Java, Python (Beginner), SQL
+- Frameworks: Spring Boot, Hibernate
+- Databases: Oracle, MySQL
+- Tools: Maven, Git, JIRA
+- Other: RESTful Services, Microservices
+
+WORK EXPERIENCE
+
+Java Developer | Global Systems Inc. | 2020-Present
+- Developed REST APIs using Spring Boot
+- Implemented database operations with Hibernate
+- Currently learning Python and Django
+- Participated in code reviews and agile ceremonies
+
+Junior Developer | StartUp Labs | 2018-2020
+- Maintained Java-based web applications
+- Fixed bugs and wrote unit tests
+- Assisted in database design
+
+EDUCATION
+Bachelor of Technology in Information Technology | 2018
+Institute of Technology | GPA: 3.4/4.0
+
+PROJECTS
+- Built a personal portfolio website using HTML/CSS
+- Learning Python through online courses

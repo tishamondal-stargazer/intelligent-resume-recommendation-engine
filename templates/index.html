@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Matcher | Intelligent Recommendation Engine</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: #333; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 5px; }
+
+        .navbar {
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .logo { font-size: 26px; font-weight: 800; background: linear-gradient(135deg, #667eea, #764ba2, #f093fb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo i { background: none; -webkit-text-fill-color: #667eea; }
+        .nav-links { display: flex; gap: 25px; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; color: #555; transition: 0.3s; cursor: pointer; font-weight: 500; }
+        .nav-links a:hover { color: #667eea; }
+        .nav-buttons { display: flex; gap: 15px; }
+        .btn-outline { padding: 8px 20px; border: 2px solid #667eea; background: transparent; border-radius: 25px; cursor: pointer; color: #667eea; transition: 0.3s; font-weight: 600; }
+        .btn-outline:hover { background: #667eea; color: white; }
+        .btn-primary { padding: 8px 20px; background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 25px; cursor: pointer; color: white; transition: 0.3s; font-weight: 600; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.4); }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 350px;
+            text-align: center;
+            animation: fadeInUp 0.3s ease;
+        }
+        .modal-content h2 { margin-bottom: 20px; color: #333; }
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+        .modal-content button { width: 100%; padding: 12px; margin-top: 10px; }
+        .close-modal { float: right; cursor: pointer; font-size: 20px; }
+
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: white;
+            padding: 80px 5%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero h1 { font-size: 3.5em; margin-bottom: 20px; animation: fadeInUp 0.8s ease; position: relative; }
+        .hero p { font-size: 1.2em; max-width: 700px; margin: 0 auto 30px; opacity: 0.95; animation: fadeInUp 1s ease; position: relative; }
+        .hero-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; animation: fadeInUp 1.2s ease; position: relative; }
+        .hero-btn { padding: 12px 30px; border-radius: 30px; font-size: 16px; cursor: pointer; transition: 0.3s; font-weight: 600; }
+        .hero-btn-primary { background: white; color: #667eea; border: none; }
+        .hero-btn-secondary { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: 2px solid white; color: white; }
+        .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section { padding: 60px 5%; }
+        .section-title { text-align: center; font-size: 2.5em; margin-bottom: 40px; color: #fff; }
+        .section-title span { background: linear-gradient(135deg, #667eea, #764ba2, #f093fb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; max-width: 1000px; margin: 0 auto; }
+        .feature-card { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: 0.3s; border-bottom: 3px solid transparent; }
+        .feature-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); border-bottom-color: #667eea; }
+        .feature-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #667eea20, #764ba220); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .feature-icon i { font-size: 40px; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .feature-card h3 { margin-bottom: 15px; color: #333; }
+        .feature-card p { color: #666; line-height: 1.6; }
+        .feature-tag { display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; margin-top: 15px; }
+
+        .steps-container { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .step { flex: 1; min-width: 180px; text-align: center; background: rgba(255,255,255,0.95); padding: 25px; border-radius: 15px; transition: 0.3s; }
+        .step:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .step-number { width: 60px; height: 60px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 24px; font-weight: bold; }
+
+        .tech-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; max-width: 900px; margin: 0 auto; }
+        .tech-card { background: rgba(255,255,255,0.95); padding: 25px; border-radius: 15px; border-left: 4px solid #667eea; transition: 0.3s; }
+        .tech-card:hover { transform: translateX(5px); box-shadow: 0 5px 20px rgba(0,0,0,0.15); }
+        .tech-icon i { font-size: 40px; color: #667eea; margin-bottom: 15px; display: block; }
+        .tech-detail { font-size: 12px; color: #667eea; margin-top: 10px; font-weight: 500; }
+
+        .demo-section { background: rgba(255,255,255,0.95); border-radius: 30px; padding: 40px; margin-top: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+        textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; min-height: 150px; transition: 0.3s; }
+        textarea:focus { outline: none; border-color: #667eea; }
+        input[type="file"] { width: 100%; padding: 10px; border: 2px dashed #e0e0e0; border-radius: 10px; cursor: pointer; }
+        .match-type { display: flex; gap: 20px; margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 10px; }
+        .btn-match { width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-match:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102,126,234,0.4); }
+
+        .results-dashboard { margin-top: 40px; display: none; }
+        .results-dashboard.show { display: block; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 15px; text-align: center; }
+        .stat-card h4 { font-size: 12px; opacity: 0.9; margin-bottom: 10px; }
+        .stat-card .value { font-size: 28px; font-weight: bold; }
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .chart-box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+        .resume-cards { display: grid; gap: 15px; }
+        .resume-card { background: white; padding: 20px; border-radius: 15px; border-left: 4px solid #667eea; transition: 0.3s; }
+        .resume-card:hover { transform: translateX(5px); box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .resume-card.highlight { border-left-color: #28a745; background: linear-gradient(135deg, #fff, #e8f5e9); }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; margin: 2px; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+
+        /* Chatbot */
+        .chatbot-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+        .chatbot-btn { width: 60px; height: 60px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.3); transition: 0.3s; }
+        .chatbot-btn:hover { transform: scale(1.1); }
+        .chatbot-btn i { color: white; font-size: 28px; }
+        .chatbot-window { position: fixed; bottom: 90px; right: 20px; width: 380px; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: none; overflow: hidden; z-index: 1001; }
+        .chatbot-window.show { display: block; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+        .chatbot-header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .chatbot-messages { height: 350px; overflow-y: auto; padding: 15px; }
+        .message { margin-bottom: 15px; display: flex; }
+        .message.user { justify-content: flex-end; }
+        .message.user .message-bubble { background: #667eea; color: white; }
+        .message.bot .message-bubble { background: #f1f1f1; color: #333; }
+        .message-bubble { max-width: 85%; padding: 10px 15px; border-radius: 18px; font-size: 14px; line-height: 1.4; white-space: pre-wrap; }
+        .chatbot-input { display: flex; padding: 15px; border-top: 1px solid #eee; }
+        .chatbot-input input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+        .chatbot-input button { background: #667eea; color: white; border: none; border-radius: 50%; width: 40px; margin-left: 10px; cursor: pointer; }
+        .suggestion-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .suggestion-chip { background: #e9ecef; padding: 5px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; transition: 0.2s; }
+        .suggestion-chip:hover { background: #667eea; color: white; }
+
+        .loader { text-align: center; padding: 40px; display: none; }
+        .loader.show { display: block; }
+        .spinner { width: 50px; height: 50px; border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .success-message { background: #d4edda; color: #155724; padding: 15px; border-radius: 10px; margin-top: 15px; display: none; }
+        .success-message.show { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .faq-container { max-width: 800px; margin: 0 auto; }
+        .faq-item { background: rgba(255,255,255,0.95); margin-bottom: 15px; border-radius: 10px; overflow: hidden; }
+        .faq-question { padding: 20px; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; }
+        .faq-answer { padding: 0 20px 20px; display: none; color: #666; }
+        .faq-answer.show { display: block; animation: fadeIn 0.3s ease; }
+
+        .footer { background: linear-gradient(135deg, #0f0c29, #1a1a2e); color: white; padding: 50px 5% 20px; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-col h4 { margin-bottom: 20px; color: #667eea; }
+        .footer-col a { display: block; color: #aaa; text-decoration: none; margin-bottom: 10px; transition: 0.3s; cursor: pointer; }
+        .footer-col a:hover { color: #667eea; transform: translateX(5px); }
+        .social-icons { display: flex; gap: 15px; margin-top: 15px; }
+        .social-icons a { color: white; font-size: 20px; transition: 0.3s; cursor: pointer; }
+        .social-icons a:hover { color: #667eea; transform: translateY(-3px); }
+        .copyright { text-align: center; padding-top: 20px; border-top: 1px solid #333; color: #aaa; }
+
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; gap: 15px; }
+            .demo-grid { grid-template-columns: 1fr; }
+            .charts-row { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 2em; }
+            .features-grid { grid-template-columns: 1fr; }
+            .tech-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .chatbot-window { width: 320px; right: 10px; bottom: 80px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeLoginModal()">&times;</span>
+            <h2><i class="fas fa-sign-in-alt"></i> Login to Your Account</h2>
+            <input type="email" id="loginEmail" placeholder="Email Address">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button class="btn-primary" onclick="handleLogin()">Sign In</button>
+            <p style="margin-top: 15px; font-size: 12px; color: #667eea;">
+                <i class="fas fa-info-circle"></i> New user? Create account
+            </p>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="logo"><i class="fas fa-brain"></i> AI Resume Matcher</div>
+        <div class="nav-links">
+            <a onclick="scrollToSection('home')">Home</a>
+            <a onclick="scrollToSection('features')">Features</a>
+            <a onclick="scrollToSection('how-it-works')">How It Works</a>
+            <a onclick="scrollToSection('ai-tech')">AI Technology</a>
+            <a onclick="scrollToSection('demo')">Demo</a>
+            <a onclick="scrollToSection('faq')">FAQ</a>
+            <a onclick="scrollToSection('contact')">Contact</a>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn-outline" id="loginBtn" onclick="openLoginModal()">Login</button>
+            <button class="btn-primary" id="signupBtn" onclick="openLoginModal()">Get Started</button>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <h1><i class="fas fa-robot"></i> AI-Powered Resume Recommendation Engine</h1>
+        <p>Match candidates with jobs instantly using advanced NLP and Similarity Learning algorithms. Get detailed insights, ATS scores, and improvement tips.</p>
+        <div class="hero-buttons">
+            <button class="hero-btn hero-btn-primary" onclick="scrollToSection('demo')"><i class="fas fa-rocket"></i> Get Started</button>
+            <button class="hero-btn hero-btn-secondary" onclick="showDemoAlert()"><i class="fas fa-play"></i> Watch Demo</button>
+        </div>
+    </section>
+
+    <section id="features" class="section">
+        <h2 class="section-title">Why Choose <span>AI Resume Matcher</span>?</h2>
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h3>Smart Matching</h3><p>AI-powered similarity learning using <strong>Cosine Similarity</strong> and <strong>TF-IDF</strong> algorithms</p><div class="feature-tag">Accuracy: 92%</div></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-language"></i></div><h3>NLP Processing</h3><p>Advanced text extraction for <strong>skills, experience, education</strong> and certifications</p><div class="feature-tag">15+ Skill Categories</div></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-chart-pie"></i></div><h3>Visual Analytics</h3><p>Interactive <strong>bar charts and donut charts</strong> for easy candidate comparison</p><div class="feature-tag">Real-time Graphs</div></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-robot"></i></div><h3>Explainable AI</h3><p>Understand <strong>why</strong> candidates get their scores with detailed breakdowns</p><div class="feature-tag">Transparent Scoring</div></div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="section" style="background: rgba(0,0,0,0.2);">
+        <h2 class="section-title">How <span>It Works</span></h2>
+        <div class="steps-container">
+            <div class="step"><div class="step-number">1</div><h3>Upload Resume</h3><p>PDF, DOCX, or TXT</p></div>
+            <div class="step"><div class="step-number">2</div><h3>NLP Processing</h3><p>Extract Skills & Experience</p></div>
+            <div class="step"><div class="step-number">3</div><h3>Feature Vectors</h3><p>Convert to Numbers</p></div>
+            <div class="step"><div class="step-number">4</div><h3>Similarity Score</h3><p>Calculate Match %</p></div>
+            <div class="step"><div class="step-number">5</div><h3>Rank & Recommend</h3><p>Get Insights</p></div>
+        </div>
+    </section>
+
+    <section id="ai-tech" class="section">
+        <h2 class="section-title">AI <span>Technology Stack</span></h2>
+        <div class="tech-grid">
+            <div class="tech-card"><div class="tech-icon"><i class="fas fa-chart-simple"></i></div><h3>TF-IDF Vectorization</h3><p>Converts text to numerical vectors by weighing word importance</p><div class="tech-detail">Term Frequency × Inverse Document Frequency</div></div>
+            <div class="tech-card"><div class="tech-icon"><i class="fas fa-chart-line"></i></div><h3>Cosine Similarity</h3><p>Measures similarity between job and resume vectors</p><div class="tech-detail">Range: 0% to 100% match</div></div>
+            <div class="tech-card"><div class="tech-icon"><i class="fas fa-language"></i></div><h3>NLP Extraction</h3><p>Identifies skills, experience, education from text</p><div class="tech-detail">Pattern matching + keyword extraction</div></div>
+            <div class="tech-card"><div class="tech-icon"><i class="fas fa-vector-square"></i></div><h3>Feature Vectors</h3><p>Multi-dimensional representation of documents</p><div class="tech-detail">1000+ dimensional space</div></div>
+        </div>
+    </section>
+
+    <section id="demo" class="section" style="background: rgba(0,0,0,0.2);">
+        <h2 class="section-title">Try <span>Live Demo</span></h2>
+        <div class="demo-section">
+            <div class="demo-grid">
+                <div>
+                    <div class="form-group"><label><i class="fas fa-briefcase"></i> Job Description</label><textarea id="job_description" placeholder="Paste job description here..."></textarea></div>
+                    <div class="form-group"><label><i class="fas fa-file-alt"></i> Upload Resumes</label><input type="file" id="resumes" multiple accept=".pdf,.docx,.txt"><small id="fileCount" style="display:block; margin-top:5px;"></small></div>
+                    <div class="match-type"><label><input type="radio" name="match_type" value="basic"> Basic Match</label><label><input type="radio" name="match_type" value="advanced" checked> Advanced Match</label></div>
+                    <button class="btn-match" onclick="matchResumes()"><i class="fas fa-chart-simple"></i> Analyze Now</button>
+                </div>
+                <div>
+                    <div class="form-group"><label><i class="fas fa-lightbulb"></i> Pro Tips</label>
+                        <div style="background: linear-gradient(135deg, #e3f2fd, #fff); padding: 20px; border-radius: 10px;">
+                            <p><i class="fas fa-check-circle" style="color:#28a745;"></i> Upload multiple resumes for comparison</p>
+                            <p><i class="fas fa-check-circle" style="color:#28a745;"></i> Advanced Match gives detailed skills analysis</p>
+                            <p><i class="fas fa-check-circle" style="color:#28a745;"></i> PDF, DOCX, and TXT files supported</p>
+                            <p><i class="fas fa-check-circle" style="color:#28a745;"></i> Get ATS score and improvement tips</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="loader" class="loader"><div class="spinner"></div><p>AI is analyzing resumes...</p></div>
+            <div id="resultsDashboard" class="results-dashboard">
+                <div class="stats-grid" id="statsGrid"></div>
+                <div class="charts-row"><div class="chart-box"><h4 style="text-align:center;"><i class="fas fa-chart-bar"></i> Match Scores</h4><canvas id="barChart"></canvas></div><div class="chart-box"><h4 style="text-align:center;"><i class="fas fa-chart-pie"></i> Acceptance Rate</h4><canvas id="pieChart"></canvas></div></div>
+                <div id="resumeCards" class="resume-cards"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="section">
+        <h2 class="section-title">Frequently Asked <span>Questions</span></h2>
+        <div class="faq-container">
+            <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)">What is resume matching? <i class="fas fa-chevron-down"></i></div><div class="faq-answer">Resume matching uses AI to compare job descriptions with resumes and find the best candidates based on skills, experience, and qualifications.</div></div>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)">How does AI calculate match scores? <i class="fas fa-chevron-down"></i></div><div class="faq-answer">We use TF-IDF vectorization + Cosine Similarity to convert text to numbers and calculate similarity percentages.</div></div>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)">What is ATS score? <i class="fas fa-chevron-down"></i></div><div class="faq-answer">ATS score measures how well your resume will perform with Applicant Tracking Systems used by companies.</div></div>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFAQ(this)">Is my data secure? <i class="fas fa-chevron-down"></i></div><div class="faq-answer">Yes! Your data is processed in real-time and never stored on our servers.</div></div>
+        </div>
+    </section>
+
+    <section id="contact" class="section" style="background: rgba(0,0,0,0.2);">
+        <h2 class="section-title">Get In <span>Touch</span></h2>
+        <div style="max-width: 600px; margin: 0 auto;">
+            <div class="form-group"><input type="text" id="contactName" placeholder="Your Name" style="width:100%; padding:12px; border-radius:10px; border:1px solid #ddd;"></div>
+            <div class="form-group"><input type="email" id="contactEmail" placeholder="Your Email" style="width:100%; padding:12px; border-radius:10px; border:1px solid #ddd;"></div>
+            <div class="form-group"><textarea id="contactMessage" placeholder="Your Message" rows="4" style="width:100%; padding:12px; border-radius:10px; border:1px solid #ddd;"></textarea></div>
+            <button class="btn-primary" onclick="sendMessage()" style="width:100%; padding:12px;">Send Message</button>
+            <div id="successMessage" class="success-message"><i class="fas fa-check-circle"></i> Message sent successfully! I'll get back to you soon.</div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4><i class="fas fa-brain"></i> AI Resume Matcher</h4>
+                <p>Intelligent hiring powered by AI</p>
+                <p><i class="fas fa-envelope"></i> tishamondal128@gmail.com</p>
+                <p><i class="fas fa-phone"></i> +91 9503198711</p>
+            </div>
+            <div class="footer-col">
+                <h4>Product</h4>
+                <a onclick="scrollToSection('features')">Features</a>
+                <a onclick="scrollToSection('how-it-works')">How It Works</a>
+                <a onclick="scrollToSection('demo')">Live Demo</a>
+            </div>
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <a onclick="scrollToSection('faq')">FAQ</a>
+                <a onclick="scrollToSection('contact')">Support</a>
+                <a href="#">Documentation</a>
+            </div>
+            <div class="footer-col">
+                <h4>Connect</h4>
+                <p>Tisha Mondal</p>
+                <p>AI/ML Developer</p>
+                <div class="social-icons">
+                    <a href="https://www.linkedin.com/in/tisha-mondal-590535357/" target="_blank" title="Connect on LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/tishamondal-stargazer" target="_blank" title="View GitHub Profile"><i class="fab fa-github"></i></a>
+                    <a href="#" onclick="showEmailPopup()" title="Send me an email"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">&copy; 2024 AI Resume Matcher | Developed by Tisha Mondal | All rights reserved.</div>
+    </footer>
+
+    <div class="chatbot-container">
+        <div class="chatbot-btn" onclick="toggleChatbot()"><i class="fas fa-comment-dots"></i></div>
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header"><span><i class="fas fa-robot"></i> AI Assistant</span><i class="fas fa-times" onclick="toggleChatbot()" style="cursor:pointer;"></i></div>
+            <div class="chatbot-messages" id="chatMessages">
+                <div class="message bot"><div class="message-bubble">👋 Hi! I'm your AI assistant. Ask me anything about:<br><br>📊 Match Scores<br>📄 ATS Optimization<br>🔧 Skills to Add<br>📝 Resume Tips<br>🤖 How AI works</div></div>
+                <div class="suggestion-chips" id="suggestionChips">
+                    <span class="suggestion-chip" onclick="sendSuggestion('How to improve my resume score?')">📈 Improve score</span>
+                    <span class="suggestion-chip" onclick="sendSuggestion('What is ATS score?')">📄 ATS score</span>
+                    <span class="suggestion-chip" onclick="sendSuggestion('What skills should I add?')">🔧 Skills to add</span>
+                    <span class="suggestion-chip" onclick="sendSuggestion('How does matching work?')">🤖 How it works</span>
+                    <span class="suggestion-chip" onclick="sendSuggestion('Tell me about TF-IDF')">📊 TF-IDF</span>
+                </div>
+            </div>
+            <div class="chatbot-input"><input type="text" id="chatInput" placeholder="Type your question..."><button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button></div>
+        </div>
+    </div>
+
+    <script>
+        let barChart, pieChart;
+        let isLoggedIn = false;
+
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('show');
+        }
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('show');
+        }
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            if (email) {
+                isLoggedIn = true;
+                document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user-check"></i> Profile';
+                document.getElementById('signupBtn').innerHTML = 'Logout';
+                document.getElementById('signupBtn').onclick = function() { logout(); };
+                closeLoginModal();
+                alert('✅ Login successful! Welcome ' + email.split('@')[0]);
+            } else {
+                alert('Please enter your email');
+            }
+        }
+        function logout() {
+            isLoggedIn = false;
+            document.getElementById('loginBtn').innerHTML = 'Login';
+            document.getElementById('signupBtn').innerHTML = 'Get Started';
+            document.getElementById('signupBtn').onclick = function() { openLoginModal(); };
+            alert('Logged out successfully');
+        }
+
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function showDemoAlert() {
+            alert("🎥 Demo Guide\n\n1. Paste a job description\n2. Upload resume files (PDF/DOCX/TXT)\n3. Click 'Analyze Now'\n4. View match scores, charts, and skills analysis\n\nTry it now!");
+        }
+
+        function toggleChatbot() {
+            document.getElementById('chatbotWindow').classList.toggle('show');
+        }
+
+        function sendSuggestion(text) {
+            document.getElementById('chatInput').value = text;
+            sendChatMessage();
+        }
+
+        // Email Popup Function - Option 2
+        function showEmailPopup() {
+            alert("📧 Send me an email at:\n\ntishamondal128@gmail.com\n\nI'll get back to you within 24 hours!");
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim().toLowerCase();
+            if (!message) return;
+            
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.innerHTML += `<div class="message user"><div class="message-bubble">${input.value.trim()}</div></div>`;
+            
+            let reply = "";
+            if (message.includes('score') || message.includes('match')) {
+                reply = "📊 **Match Score Explained:**\n\nScores are calculated using Cosine Similarity between job and resume feature vectors.\n\n• 80-100%: 🏆 Excellent Match\n• 60-79%: ✅ Good Match\n• 40-59%: ⚠️ Moderate Match\n• Below 40%: ❌ Weak Match";
+            } else if (message.includes('ats')) {
+                reply = "📄 **ATS Score:** Measures resume compatibility with Applicant Tracking Systems.\n\nTips: Use standard fonts, avoid images, include keywords, use standard headings.";
+            } else if (message.includes('skill')) {
+                reply = "🔧 **Top Skills to Add:**\n\nPython Developer: Python, Django, REST APIs, SQL, Git\nData Scientist: Python, Pandas, TensorFlow, SQL\nFrontend: JavaScript, React, HTML, CSS";
+            } else if (message.includes('how')) {
+                reply = "🤖 **How It Works:** NLP extracts skills → TF-IDF creates vectors → Cosine Similarity calculates match → Weighted scoring produces final score.";
+            } else if (message.includes('tf-idf')) {
+                reply = "📊 **TF-IDF:** Term Frequency × Inverse Document Frequency. Identifies important unique words in documents.";
+            } else if (message.includes('hello') || message.includes('hi')) {
+                reply = "👋 Hello! Ask me about match scores, ATS, skills, or how our AI works!";
+            } else {
+                reply = "🤖 I can help with match scores, ATS, skills, resume tips, and AI algorithms. What would you like to know?";
+            }
+            
+            setTimeout(() => {
+                messagesDiv.innerHTML += `<div class="message bot"><div class="message-bubble">${reply.replace(/\n/g, '<br>')}</div></div>`;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 300);
+            input.value = '';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendChatMessage();
+        });
+
+        function toggleFAQ(element) {
+            element.nextElementSibling.classList.toggle('show');
+        }
+
+        function sendMessage() {
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const message = document.getElementById('contactMessage').value;
+            if (!name || !email || !message) { alert('Please fill all fields'); return; }
+            document.getElementById('successMessage').classList.add('show');
+            document.getElementById('contactName').value = '';
+            document.getElementById('contactEmail').value = '';
+            document.getElementById('contactMessage').value = '';
+            setTimeout(() => document.getElementById('successMessage').classList.remove('show'), 3000);
+        }
+
+        document.getElementById('resumes').addEventListener('change', function() {
+            document.getElementById('fileCount').innerHTML = this.files.length + ' file(s) selected';
+        });
+
+        async function matchResumes() {
+            const jobDesc = document.getElementById('job_description').value;
+            const files = document.getElementById('resumes').files;
+            const matchType = document.querySelector('input[name="match_type"]:checked').value;
+            
+            if (!jobDesc) { alert('Please enter job description'); return; }
+            if (files.length === 0) { alert('Please upload at least one resume'); return; }
+
+            document.getElementById('loader').classList.add('show');
+            document.getElementById('resultsDashboard').classList.remove('show');
+
+            const formData = new FormData();
+            formData.append('job_description', jobDesc);
+            formData.append('match_type', matchType);
+            for (let i = 0; i < files.length; i++) formData.append('resumes', files[i]);
+
+            try {
+                const response = await fetch('/match', { method: 'POST', body: formData });
+                const data = await response.json();
+                if (data.error) alert(data.error);
+                else displayResults(data, matchType);
+            } catch (error) { 
+                alert('Error processing request. Make sure server is running.');
+            }
+            finally { document.getElementById('loader').classList.remove('show'); }
+        }
+
+        function displayResults(data, matchType) {
+            const results = data.results;
+            const scoreKey = matchType === 'advanced' ? 'Total_Score' : 'Match_Score';
+            results.sort((a, b) => b[scoreKey] - a[scoreKey]);
+            
+            const scores = results.map(r => r[scoreKey]);
+            const avgScore = scores.reduce((a,b) => a + b, 0) / scores.length;
+            
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card"><h4>Total Resumes</h4><div class="value">${results.length}</div></div>
+                <div class="stat-card"><h4>Average Score</h4><div class="value">${avgScore.toFixed(1)}%</div></div>
+                <div class="stat-card"><h4>Top Score</h4><div class="value">${Math.max(...scores).toFixed(1)}%</div></div>
+                <div class="stat-card"><h4>Best Match</h4><div class="value">${results[0].Filename.split('.')[0].substring(0,12)}</div></div>
+            `;
+            
+            createBarChart(results.map(r => r.Filename.split('.')[0].substring(0,15)), scores);
+            const accepted = results.filter(r => r[scoreKey] >= 50).length;
+            const rejected = results.filter(r => r[scoreKey] < 50).length;
+            createPieChart(accepted, rejected);
+            
+            let cardsHtml = '';
+            results.forEach((result, idx) => {
+                const score = result[scoreKey];
+                const isTop = idx === 0;
+                let skillsHtml = '';
+                if (matchType === 'advanced' && result.Matching_Skills) {
+                    const matched = result.Matching_Skills.split(',').slice(0,4);
+                    const missing = result.Missing_Skills ? result.Missing_Skills.split(',').slice(0,4) : [];
+                    skillsHtml = `<div style="margin-top:15px;"><strong>✅ Matched:</strong> ${matched.map(s => `<span class="badge badge-success">${s.trim()}</span>`).join('')}${missing.length ? `<br><strong>❌ Missing:</strong> ${missing.map(s => `<span class="badge badge-danger">${s.trim()}</span>`).join('')}` : ''}</div>`;
+                }
+                const scoreColor = score >= 70 ? '#28a745' : (score >= 40 ? '#ffc107' : '#dc3545');
+                cardsHtml += `<div class="resume-card ${isTop ? 'highlight' : ''}"><h3><i class="fas fa-file-alt"></i> ${result.Filename}</h3><div style="font-size:24px; font-weight:bold; color:${scoreColor}">${score.toFixed(1)}%</div><div>${matchType === 'advanced' && result.Recommendation ? `🏆 ${result.Recommendation}` : (result.Status || '')}</div>${skillsHtml}</div>`;
+            });
+            document.getElementById('resumeCards').innerHTML = cardsHtml;
+            document.getElementById('resultsDashboard').classList.add('show');
+        }
+
+        function createBarChart(labels, data) {
+            const ctx = document.getElementById('barChart').getContext('2d');
+            if (barChart) barChart.destroy();
+            barChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels, datasets: [{ label: 'Match Score (%)', data, backgroundColor: 'rgba(102,126,234,0.7)', borderRadius: 8 }] },
+                options: { responsive: true, scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: 'Score %' } } } }
+            });
+        }
+
+        function createPieChart(accepted, rejected) {
+            const ctx = document.getElementById('pieChart').getContext('2d');
+            if (pieChart) pieChart.destroy();
+            pieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels: [`✅ Accepted (${accepted})`, `❌ Rejected (${rejected})`], datasets: [{ data: [accepted, rejected], backgroundColor: ['#28a745', '#dc3545'], borderWidth: 0 }] },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+    </script>
+</body>
+</html>

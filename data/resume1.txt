@@ -1,0 +1,40 @@
+JOHN SMITH
+Email: john.smith@email.com | Phone: (123) 456-7890
+
+SUMMARY
+Experienced Python Developer with 5 years of expertise in web development
+and cloud technologies. Strong background in Django, REST APIs, and AWS.
+
+TECHNICAL SKILLS
+- Languages: Python, JavaScript, SQL
+- Frameworks: Django, Flask, React
+- Databases: PostgreSQL, MySQL, MongoDB
+- Tools: Git, Docker, Jenkins, AWS
+- Other: RESTful APIs, Microservices, Agile
+
+WORK EXPERIENCE
+
+Senior Developer | Tech Solutions Inc. | 2021-Present
+- Developed REST APIs using Django REST Framework
+- Implemented authentication and authorization systems
+- Optimized database queries improving performance by 40%
+- Deployed applications on AWS EC2 and Lambda
+
+Python Python Python Django Django REST API SQL PostgreSQL Git GitHub AWS EC2 Lambda
+
+Python Developer | Digital Innovations | 2019-2021
+- Built web applications using Flask and SQLAlchemy
+- Integrated third-party APIs
+- Maintained CI/CD pipelines with Jenkins
+- Collaborated in Agile team of 8 developers
+
+EDUCATION
+Master of Science in Computer Science | 2019
+University of Technology | GPA: 3.8/4.0
+
+Bachelor of Engineering in Computer Science | 2017
+State University | GPA: 3.6/4.0
+
+CERTIFICATIONS
+- AWS Certified Developer – Associate
+- Docker Certified Associate
